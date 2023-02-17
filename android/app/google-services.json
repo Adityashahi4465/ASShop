@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "820919275603",
+    "project_id": "asshop-3f053",
+    "storage_bucket": "asshop-3f053.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:820919275603:android:f6295f67e6625802dd36a6",
+        "android_client_info": {
+          "package_name": "com.aditya.as_shop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "820919275603-p8ok8q5lq6tsmstst6ongb3f6fbrqf0f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAQVQsQsN6g2xDQZId-u7eKX5ElhCTM0s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820919275603-p8ok8q5lq6tsmstst6ongb3f6fbrqf0f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
