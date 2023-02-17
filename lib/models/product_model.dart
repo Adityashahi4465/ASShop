@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../minor_screens/product_details.dart';
 
+// Product feed Card
+
 class ProductModel extends StatelessWidget {
   final dynamic products;
   const ProductModel({
@@ -14,7 +16,7 @@ class ProductModel extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ProductDetailsScreen()));
+            MaterialPageRoute(builder: (context) => ProductDetailsScreen(proList: products,)));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
