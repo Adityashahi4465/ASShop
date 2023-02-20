@@ -1,6 +1,4 @@
-# as_shop
-
-# Under Construction 
+# ASShop - Under Construction 
 
 A new Flutter project.
 
