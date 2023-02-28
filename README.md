@@ -1,7 +1,11 @@
 # ASShop - Under Construction 
 
-A new Flutter project.
+An E-commerce website that allows buying/Selling products to strengthen small vendors to enhance their business.
 
+**Built** a robust and responsive front-end with support for Credentials/Google/Guest/Facebook
+Authentication, Payments, Product Categories, Stores, Rating Products, State Persistence
+
+○ **Technology stack**: Flutter | Firebase Auth| Firebase Storage| Firebase Firestore | FCM | MySQL | Stripe
 ## Getting Started
 
 This project is a starting point for a Flutter application.
