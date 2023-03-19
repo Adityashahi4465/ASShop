@@ -24,9 +24,9 @@ class _AccessoriesGalleryScreenState extends State<AccessoriesGalleryScreen> {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: _productsStream,
-      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+      builder: (BuildContext context,  snapshot) {
         if (snapshot.hasError) {
-          return Text('Something went wrong');
+          return Text('Something went wrong Please try again later');
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
