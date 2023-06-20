@@ -1,3 +1,4 @@
+import 'package:as_shop/minor_screens/visit_store.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,6 +25,15 @@ class StoresScreen extends StatelessWidget {
           stream:
               FirebaseFirestore.instance.collection('suppliers').snapshots(),
           builder: (BuildContext context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Material(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.yellow,
+                  ),
+                ),
+              );
+            }
             if (snapshot.hasData) {
               return GridView.builder(
                 itemCount: snapshot.data!.docs.length,
@@ -33,36 +43,46 @@ class StoresScreen extends StatelessWidget {
                   crossAxisCount: 2,
                 ),
                 itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      Stack(
-                        children: [
-                          SizedBox(
-                            height: 120,
-                            width: 120,
-                            child: Image.asset('images/inapp/store.jpg'),
-                          ),
-                          Positioned(
-                            bottom: 28,
-                            left: 10,
-                            child: SizedBox(
-                              height: 48,
-                              width: 100,
-                              child: Image.network(
-                                snapshot.data!.docs[index]['storelogo'],
-                                fit:  BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        snapshot.data!.docs[index]['storename'],
-                        style: GoogleFonts.akayaTelivigala(
-                          fontSize: 26,
+                  return GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => VisitStore(
+                          supplierId: snapshot.data!.docs[index]['sid'],
                         ),
                       ),
-                    ],
+                    ),
+                    child: Column(
+                      children: [
+                        Stack(
+                          children: [
+                            SizedBox(
+                              height: 120,
+                              width: 120,
+                              child: Image.asset('images/inapp/store.jpg'),
+                            ),
+                            Positioned(
+                              bottom: 28,
+                              left: 10,
+                              child: SizedBox(
+                                height: 48,
+                                width: 100,
+                                child: Image.network(
+                                  snapshot.data!.docs[index]['storelogo'],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          snapshot.data!.docs[index]['storename'],
+                          style: GoogleFonts.akayaTelivigala(
+                            fontSize: 26,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 },
               );

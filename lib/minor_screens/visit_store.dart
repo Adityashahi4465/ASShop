@@ -1,6 +1,8 @@
 import 'package:as_shop/widgets/appbar_widgets.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_grid_view.dart';
 import 'package:staggered_grid_view_flutter/widgets/staggered_tile.dart';
@@ -25,7 +27,8 @@ class _VisitStoreState extends State<VisitStore> {
         .snapshots();
     CollectionReference supplier =
         FirebaseFirestore.instance.collection('suppliers');
-
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    var mq = MediaQuery.of(context).size;
     return FutureBuilder<DocumentSnapshot>(
       future: supplier.doc(widget.supplierId).get(),
       builder:
@@ -57,6 +60,7 @@ class _VisitStoreState extends State<VisitStore> {
                 'images/inapp/coverimage.jpg',
                 fit: BoxFit.cover,
               ),
+              leading: const YellowAppBarBackButton(),
               title: Row(
                 children: [
                   Container(
@@ -96,23 +100,50 @@ class _VisitStoreState extends State<VisitStore> {
                             ),
                           ],
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.yellow,
-                            border: Border.all(width: 3, color: Colors.black),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: MaterialButton(
-                            onPressed: () {
-                              setState(() {
-                                following = !following;
-                              });
-                            },
-                            child: following == true
-                                ? const Text('following')
-                                : const Text('FOLLOW'),
-                          ),
-                        ),
+                        data['sid'] == uid
+                            ? Container(
+                                height: 42,
+                                width: mq.width * 0.3,
+                                decoration: BoxDecoration(
+                                  color: Colors.yellow,
+                                  border:
+                                      Border.all(width: 3, color: Colors.black),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                child: MaterialButton(
+                                    onPressed: () {},
+                                    child: const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        Text('Edit'),
+                                        Icon(
+                                          Icons.edit,
+                                          color: Colors.black,
+                                        ),
+                                      ],
+                                    )),
+                              )
+                            : Container(
+                                height: 42,
+                                width: mq.width * 0.35,
+                                decoration: BoxDecoration(
+                                  color: Colors.yellow,
+                                  border:
+                                      Border.all(width: 3, color: Colors.black),
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                child: MaterialButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      following = !following;
+                                    });
+                                  },
+                                  child: following == true
+                                      ? const Text('following')
+                                      : const Text('FOLLOW'),
+                                ),
+                              ),
                       ],
                     ),
                   )
@@ -166,6 +197,15 @@ class _VisitStoreState extends State<VisitStore> {
                     ),
                   );
                 },
+              ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {},
+              backgroundColor: Colors.green,
+              child: const Icon(
+                FontAwesomeIcons.whatsapp,
+                color: Colors.white,
+                size: 40,
               ),
             ),
           );

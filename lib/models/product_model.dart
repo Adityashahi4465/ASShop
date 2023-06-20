@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../minor_screens/product_details.dart';
-
+import '../providers/wish_list_provider.dart';
+import 'package:collection/collection.dart';
 // Product feed Card
 
-class ProductModel extends StatelessWidget {
+class ProductModel extends StatefulWidget {
   final dynamic products;
   const ProductModel({
     required this.products,
@@ -12,11 +15,25 @@ class ProductModel extends StatelessWidget {
   });
 
   @override
+  State<ProductModel> createState() => _ProductModelState();
+}
+
+class _ProductModelState extends State<ProductModel> {
+  @override
   Widget build(BuildContext context) {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    var existingItemWishList =
+        context.watch<WishList>().getWishItems.firstWhereOrNull(
+              (product) => product.documentId == widget.products['proId'],
+            );
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => ProductDetailsScreen(proList: products,)));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ProductDetailsScreen(
+                      proList: widget.products,
+                    )));
       },
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -37,7 +54,7 @@ class ProductModel extends StatelessWidget {
                     maxHeight: 250,
                   ),
                   child: Image(
-                    image: NetworkImage(products['proimages'][0]),
+                    image: NetworkImage(widget.products['proimages'][0]),
                   ),
                 ),
               ),
@@ -46,7 +63,7 @@ class ProductModel extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      products['productname'],
+                      widget.products['productname'],
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -59,20 +76,47 @@ class ProductModel extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          products['price'].toStringAsFixed(2) + (' \$'),
+                          widget.products['price'].toStringAsFixed(2) + (' \$'),
                           style: const TextStyle(
                             color: Colors.red,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.favorite_border_outlined,
-                          ),
-                          color: Colors.red,
-                        )
+                        widget.products['sid'] == uid
+                            ? IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  Icons.edit,
+                                ),
+                                color: Colors.red,
+                              )
+                            : IconButton(
+                                onPressed: () {
+                                  existingItemWishList != null
+                                      ? context
+                                          .read<WishList>()
+                                          .removeThis(widget.products['proId'])
+                                      : context.read<WishList>().addWishItem(
+                                            widget.products['productname'],
+                                            widget.products['price'],
+                                            1,
+                                            widget.products['instock'],
+                                            widget.products['proimages'],
+                                            widget.products['proId'],
+                                            widget.products['sid'],
+                                          );
+                                },
+                                icon: existingItemWishList != null
+                                    ? const Icon(
+                                        Icons.favorite,
+                                        color: Colors.red,
+                                      )
+                                    : const Icon(
+                                        Icons.favorite_border_outlined,
+                                      ),
+                                color: Colors.red,
+                              ),
                       ],
                     ),
                   ],

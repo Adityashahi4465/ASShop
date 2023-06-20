@@ -1,6 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:as_shop/dashboard_components/my_store.dart';
+import 'package:as_shop/minor_screens/visit_store.dart';
 import 'package:as_shop/widgets/appbar_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +24,8 @@ List<IconData> icons = [
   Icons.attach_money,
   Icons.show_chart,
 ];
-List<String> pages = [
-  '/my_store',
+List pages = [
+  VisitStore(supplierId: FirebaseAuth.instance.currentUser!.uid),
   '/supplier_orders',
   '/edit_business',
   '/manage_products',
@@ -76,7 +76,12 @@ class DashboardScreen extends StatelessWidget {
           crossAxisSpacing: 40,
           children: List.generate(6, (index) {
             return InkWell(
-              onTap: () => Navigator.pushNamed(context, pages[index]),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => pages[index],
+                ),
+              ),
               child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
