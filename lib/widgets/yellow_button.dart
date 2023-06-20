@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class YellowButton extends StatelessWidget {
   final String label;
-  final Function() onPressed;
+  final Function()? onPressed;
   final double width;
 
   const YellowButton({
