@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/product_class.dart';
 import '../providers/wish_list_provider.dart';
-import 'package:collection/collection.dart';
 
 class WishlistModel extends StatelessWidget {
   const WishlistModel({

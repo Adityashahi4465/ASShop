@@ -1,4 +1,3 @@
-import 'package:as_shop/categories/kids_categ.dart';
 import 'package:as_shop/galleries/bags_gallery.dart';
 import 'package:as_shop/galleries/beauty_gallery.dart';
 import 'package:as_shop/galleries/electronics_gallery.dart';
@@ -6,12 +5,10 @@ import 'package:as_shop/galleries/homeandgarden_gallery.dart';
 import 'package:as_shop/galleries/kids_gallery.dart';
 import 'package:as_shop/galleries/men_gallery.dart';
 import 'package:as_shop/galleries/women_gallery.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../galleries/accessories_gallery.dart';
 import '../galleries/shoes_gallery.dart';
-import '../minor_screens/search.dart';
 import '../widgets/fack_search.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
         appBar: AppBar(
             elevation: 0,
             backgroundColor: Colors.white,
-            title: FakeSearch(),
+            title: const FakeSearch(),
             bottom: const TabBar(
                 isScrollable: true,
                 indicatorColor: Colors.yellow,

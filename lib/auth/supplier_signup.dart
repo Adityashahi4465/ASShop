@@ -47,7 +47,6 @@ class _SupplierRegisterState extends State<SupplierRegister> {
       setState(() {
         _pickedImageError = e;
       });
-      print(_pickedImageError);
     }
   }
 

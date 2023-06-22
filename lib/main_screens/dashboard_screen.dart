@@ -1,5 +1,8 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'package:as_shop/dashboard_components/edit_business.dart';
+import 'package:as_shop/dashboard_components/manage_products.dart';
+import 'package:as_shop/dashboard_components/supplier_balance.dart';
+import 'package:as_shop/dashboard_components/supplier_orders.dart';
+import 'package:as_shop/dashboard_components/supplier_statics.dart';
 import 'package:as_shop/minor_screens/visit_store.dart';
 import 'package:as_shop/widgets/appbar_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -26,15 +29,32 @@ List<IconData> icons = [
 ];
 List pages = [
   VisitStore(supplierId: FirebaseAuth.instance.currentUser!.uid),
-  '/supplier_orders',
-  '/edit_business',
-  '/manage_products',
-  'supplier_balance',
-  '/supplier_statics',
+  const SupplierOrders(),
+  const EditBusiness(),
+  const ManageProducts(),
+  const BalanceScreen(),
+  const StaticsScreen(),
 ];
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({Key? key}) : super(key: key);
+
+  signOut(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+        if (user == null) {
+          // The user is logged out, so reload the user.
+          await FirebaseAuth.instance.currentUser!.reload();
+        }
+      });
+      if (!context.mounted) return;
+      Navigator.pop(context);
+      Navigator.pushReplacementNamed(context, '/welcome_screen');
+    } catch (e) {
+      print('Error Occurred during sign Out $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,11 +74,7 @@ class DashboardScreen extends StatelessWidget {
                 title: 'Log Out',
                 content: 'Are you sure to log out ?',
                 tabNo: () => Navigator.pop(context),
-                tabYes: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.pop(context);
-                  Navigator.pushReplacementNamed(context, '/welcome_screen');
-                },
+                tabYes: () => signOut(context),
               );
             },
             icon: const Icon(

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utilities/categ_list.dart';
 
-import '../minor_screens/subcatag_products.dart';
 import '../widgets/categ_widgets.dart';
 
 class ElectronicsCategory extends StatelessWidget {
@@ -23,7 +22,7 @@ class ElectronicsCategory extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CategHeaderLabel(
-                    HeaderLabel: 'Electronics',
+                    headerLabel: 'Electronics',
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.64,

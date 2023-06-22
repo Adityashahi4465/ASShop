@@ -1,10 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:as_shop/data_models/order_data_model.dart';
 import 'package:as_shop/widgets/yellow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -280,7 +277,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                                           item.qty * item.price,
                                                       deliverystatus:
                                                           'preparing',
-                                                      deliverydate: '',
+                                                      deliverydate:
+                                                          Timestamp.now(),
                                                       orderdate:
                                                           Timestamp.now(),
                                                       paymentstatus:
@@ -308,11 +306,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                           });
                                         });
                                       }
-                                      context.read<Cart>().clearCart();
-                                      Navigator.popUntil(
-                                          context,
-                                          ModalRoute.withName(
-                                              '/customer_home'));
+                                      await Future.delayed(
+                                              const Duration(microseconds: 100))
+                                          .whenComplete(() {
+                                        context.read<Cart>().clearCart();
+                                        Navigator.popUntil(
+                                            context,
+                                            ModalRoute.withName(
+                                                '/customer_home'));
+                                      });
                                     },
                                     width: 0.9,
                                   )

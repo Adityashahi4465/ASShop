@@ -18,7 +18,7 @@ class OrderDataClass {
   int orderqty;
   double orderprice;
   String deliverystatus;
-  String deliverydate;
+  Timestamp deliverydate;
   Timestamp orderdate;
   String paymentstatus;
   bool orderreview;
@@ -58,7 +58,7 @@ class OrderDataClass {
     int? orderqty,
     double? orderprice,
     String? deliverystatus,
-    String? deliverydate,
+    Timestamp? deliverydate,
     Timestamp? orderdate,
     String? paymentstatus,
     bool? orderreview,
@@ -101,7 +101,7 @@ class OrderDataClass {
       'orderqty': orderqty,
       'orderprice': orderprice,
       'deliverystatus': deliverystatus,
-      'deliverydate': deliverydate,
+      'deliverydate': deliverydate.toDate(),
       'orderdate': orderdate.toDate(),
       'paymentstatus': paymentstatus,
       'orderreview': orderreview,
@@ -124,7 +124,7 @@ class OrderDataClass {
       orderqty: map['orderqty'] as int,
       orderprice: map['orderprice'] as double,
       deliverystatus: map['deliverystatus'] as String,
-      deliverydate: map['deliverydate'] as String,
+      deliverydate: map['deliverydate'] as Timestamp,
       orderdate: map['orderdate'] as Timestamp,
       paymentstatus: map['paymentstatus'] as String,
       orderreview: map['orderreview'] as bool,

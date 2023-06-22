@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 
-class CustomerOrderModel extends StatelessWidget {
+class SupplierOrderModel extends StatelessWidget {
   final dynamic order;
-  const CustomerOrderModel({super.key, required this.order});
+  const SupplierOrderModel({super.key, required this.order});
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +75,7 @@ class CustomerOrderModel extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: order['deliverystatus'] == 'delivered'
-                    ? Colors.brown.withOpacity(0.2)
-                    : Colors.yellow.withOpacity(0.2),
+                color: Colors.yellow.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Padding(
@@ -139,36 +139,64 @@ class CustomerOrderModel extends StatelessWidget {
                         ),
                       ],
                     ),
-                    order['deliverystatus'] == 'shipping'
-                        ? Text(
-                            'Estimated Delivery Date: ${DateFormat('dd-MMMM-yyyy').format(order['deliverydate'].toDate())}',
-                            style: const TextStyle(fontSize: 15),
-                          )
-                        : const Text(''),
-                    order['deliverystatus'] == 'delivered' &&
-                            order['orderreview'] == false
-                        ? TextButton(
-                            onPressed: () {},
-                            child: const Text('Write Review'),
-                          )
-                        : const Text(''),
-                    order['deliverystatus'] == 'delivered' &&
-                            order['orderreview'] == true
-                        ? const Row(
+                    Row(
+                      children: [
+                        const Text(
+                          'Order Date: ',
+                          style: TextStyle(
+                            fontSize: 15,
+                          ),
+                        ),
+                        Text(
+                          DateFormat('dd-MMMM-yyyy')
+                              .format(order['orderdate'].toDate()),
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.green),
+                        ),
+                      ],
+                    ),
+                    order['deliverystatus'] == 'delivered'
+                        ? const Text('This item has been already delivered')
+                        : Row(
                             children: [
-                              Icon(
-                                Icons.check,
-                                color: Colors.blue,
-                              ),
-                              Text(
-                                'Review Added',
+                              const Text(
+                                'Change Delivery Status: ',
                                 style: TextStyle(
-                                    color: Colors.blue,
-                                    fontStyle: FontStyle.italic),
-                              )
+                                  fontSize: 15,
+                                ),
+                              ),
+                              order['deliverystatus'] == 'preparing'
+                                  ? TextButton(
+                                      onPressed: () {
+                                        DatePicker.showDatePicker(context,
+                                            minTime: DateTime.now(),
+                                            maxTime: DateTime.now()
+                                                .add(const Duration(days: 365)),
+                                            onConfirm: (date) async {
+                                          await FirebaseFirestore.instance
+                                              .collection('orders')
+                                              .doc(order['orderid'])
+                                              .update({
+                                            'deliverystatus': 'shipping',
+                                            'deliverydate': date,
+                                          });
+                                        });
+                                      },
+                                      child: const Text('shipping ?'),
+                                    )
+                                  : TextButton(
+                                      onPressed: () async {
+                                        await FirebaseFirestore.instance
+                                            .collection('orders')
+                                            .doc(order['orderid'])
+                                            .update({
+                                          'deliverystatus': 'delivered',
+                                        });
+                                      },
+                                      child: const Text('delivered ?'),
+                                    ),
                             ],
-                          )
-                        : const Text(''),
+                          ),
                   ],
                 ),
               ),

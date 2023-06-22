@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:io';
 
 import 'package:as_shop/widgets/auth_widgets.dart';
@@ -47,7 +45,6 @@ class _CustomerRegisterState extends State<CustomerRegister> {
       setState(() {
         _pickedImageError = e;
       });
-      print(_pickedImageError);
     }
   }
 
@@ -65,7 +62,6 @@ class _CustomerRegisterState extends State<CustomerRegister> {
       setState(() {
         _pickedImageError = e;
       });
-      print(_pickedImageError);
     }
   }
 
@@ -102,7 +98,8 @@ class _CustomerRegisterState extends State<CustomerRegister> {
           setState(() {
             _imageFile = null;
           });
-          Navigator.pushReplacementNamed(context, '/customer_login');
+          await Future.delayed(const Duration(microseconds: 100)).whenComplete(
+              () => Navigator.pushReplacementNamed(context, '/customer_login'));
         } on FirebaseAuthException catch (e) {
           if (e.code == 'weak-password') {
             setState(() {

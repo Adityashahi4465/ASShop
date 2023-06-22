@@ -22,7 +22,7 @@ class AuthMainButton extends StatelessWidget {
           onPressed: onPressed,
           child: Text(
             mainButtonLabel,
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),

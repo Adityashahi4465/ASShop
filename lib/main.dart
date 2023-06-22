@@ -13,7 +13,6 @@ import 'package:as_shop/main_screens/welcome_screen.dart';
 import 'package:as_shop/providers/cart_provider.dart';
 import 'package:as_shop/providers/wish_list_provider.dart';
 import 'package:as_shop/widgets/appbar_widgets.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

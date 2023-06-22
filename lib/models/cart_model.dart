@@ -8,12 +8,11 @@ import '../providers/product_class.dart';
 import '../providers/wish_list_provider.dart';
 
 class CartModel extends StatelessWidget {
-  const CartModel({
-    super.key,
-    required this.product,
-    required this.existingItemWishList,
-    required this.cart
-  });
+  const CartModel(
+      {super.key,
+      required this.product,
+      required this.existingItemWishList,
+      required this.cart});
   final Cart cart;
   final Product product;
   final Product? existingItemWishList;
@@ -31,7 +30,7 @@ class CartModel extends StatelessWidget {
                 height: 100,
                 width: 120,
                 child: Image.network(
-                 product.imagesUrl.first,
+                  product.imagesUrl.first,
                 ),
               ),
               Flexible(
@@ -106,12 +105,18 @@ class CartModel extends StatelessWidget {
                                                                   .documentId,
                                                               product.suppId,
                                                             );
-                                                    context
-                                                        .read<Cart>()
-                                                        .removeItem(
-                                                          product,
-                                                        );
-                                                    Navigator.pop(context);
+                                                    await Future.delayed(
+                                                            const Duration(
+                                                                microseconds:
+                                                                    100))
+                                                        .whenComplete(() {
+                                                      context
+                                                          .read<Cart>()
+                                                          .removeItem(
+                                                            product,
+                                                          );
+                                                      Navigator.pop(context);
+                                                    });
                                                   },
                                                 ),
                                                 CupertinoActionSheetAction(

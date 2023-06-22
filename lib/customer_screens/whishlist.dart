@@ -1,4 +1,3 @@
-import 'package:as_shop/providers/product_class.dart';
 import 'package:as_shop/providers/wish_list_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +7,6 @@ import '../widgets/appbar_widgets.dart';
 import 'package:collection/collection.dart';
 
 import '../widgets/my_alert_dialog.dart';
-import '../widgets/snackbar.dart';
 
 class WishListScreen extends StatefulWidget {
   const WishListScreen({

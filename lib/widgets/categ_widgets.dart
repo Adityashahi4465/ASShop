@@ -97,10 +97,10 @@ class SubCategModel extends StatelessWidget {
 }
 
 class CategHeaderLabel extends StatelessWidget {
-  final String HeaderLabel;
+  final String headerLabel;
 
   const CategHeaderLabel({
-    required this.HeaderLabel,
+    required this.headerLabel,
     Key? key,
   }) : super(key: key);
 
@@ -109,7 +109,7 @@ class CategHeaderLabel extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(30.0),
       child: Text(
-        HeaderLabel,
+        headerLabel,
         style: const TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,

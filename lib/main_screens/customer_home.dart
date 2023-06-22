@@ -1,9 +1,10 @@
 import 'package:as_shop/main_screens/profile.dart';
 import 'package:as_shop/main_screens/stores.dart';
-import 'package:as_shop/widgets/appbar_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:badges/badges.dart' as badge;
+import 'package:provider/provider.dart';
+import '../providers/cart_provider.dart';
 import 'cart.dart';
 import 'category_screen.dart';
 import 'home.dart';
@@ -38,24 +39,47 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
         elevation: 0,
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.search),
             label: 'Category',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.shop),
             label: 'Stores',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
+            icon: badge.Badge(
+              badgeAnimation: const badge.BadgeAnimation.slide(),
+              position: badge.BadgePosition.custom(
+                start: 10,
+                bottom: 9,
+                isCenter: false,
+              ),
+              badgeStyle: const badge.BadgeStyle(
+                badgeColor: Colors.yellow,
+                padding: EdgeInsets.all(3),
+              ),
+              showBadge: context.watch<Cart>().getItems.isEmpty ? false : true,
+              badgeContent: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Text(
+                  context.watch<Cart>().getItems.length.toString(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              child: const Icon(Icons.shopping_cart),
+            ),
             label: 'Cart',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',
           ),

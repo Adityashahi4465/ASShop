@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 data['profileimage']),
                                           ),
                                     Padding(
-                                      padding: EdgeInsets.only(left: 25),
+                                      padding: const EdgeInsets.only(left: 25),
                                       child: Text(
                                         data['name'].toUpperCase(),
                                         style: const TextStyle(
@@ -305,9 +303,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               tabYes: () async {
                                                 await FirebaseAuth.instance
                                                     .signOut();
-                                                Navigator.pop(context);
-                                                Navigator.pushReplacementNamed(
-                                                    context, '/welcome_screen');
+
+                                                await Future.delayed(
+                                                        const Duration(
+                                                            microseconds: 100))
+                                                    .whenComplete(() {
+                                                  Navigator.pop(context);
+                                                  Navigator
+                                                      .pushReplacementNamed(
+                                                          context,
+                                                          '/welcome_screen');
+                                                });
                                               },
                                             );
                                           },

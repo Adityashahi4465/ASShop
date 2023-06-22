@@ -3,7 +3,6 @@
 import 'dart:math';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:as_shop/main_screens/supplier_home.dart';
 import 'package:as_shop/widgets/yellow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

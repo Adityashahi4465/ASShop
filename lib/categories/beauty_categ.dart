@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utilities/categ_list.dart';
 
-import '../minor_screens/subcatag_products.dart';
 import '../widgets/categ_widgets.dart';
 
 class BeautyCategory extends StatelessWidget {
@@ -23,7 +22,7 @@ class BeautyCategory extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CategHeaderLabel(
-                    HeaderLabel: 'Beauty',
+                    headerLabel: 'Beauty',
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.64,

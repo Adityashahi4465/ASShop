@@ -46,6 +46,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         context.watch<WishList>().getWishItems.firstWhereOrNull(
               (product) => product.documentId == widget.proList['proId'],
             );
+    var onSale = widget.proList['discount'];
+
     return Material(
       child: SafeArea(
         child: ScaffoldMessenger(
@@ -129,21 +131,50 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           children: [
                             Row(
                               children: [
-                                const Text(
-                                  'USD ',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  widget.proList['price'].toStringAsFixed(2),
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'USD',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      widget.proList['price']
+                                          .toStringAsFixed(2),
+                                      style: onSale != 0
+                                          ? const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                            )
+                                          : const TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    widget.proList['discount'] != 0
+                                        ? Text(
+                                            // calculating price after discount
+                                            ((1 - (onSale / 100)) *
+                                                    widget.proList['price'])
+                                                .toStringAsFixed(2),
+                                            style: const TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          )
+                                        : const Text(''),
+                                  ],
                                 ),
                               ],
                             ),
@@ -155,7 +186,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                         .removeThis(widget.proList['proId'])
                                     : context.read<WishList>().addWishItem(
                                           widget.proList['productname'],
-                                          widget.proList['price'],
+                                          onSale != 0
+                                              ? ((1 - (onSale / 100)) *
+                                                  widget.proList['price'])
+                                              : widget.proList['price'],
                                           1,
                                           widget.proList['instock'],
                                           widget.proList['proimages'],
@@ -178,7 +212,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         widget.proList['instock'] == 0
                             ? const Text(
                                 'Out of Stock',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.redAccent,
                                 ),
@@ -332,7 +366,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                               )
                             : context.read<Cart>().addItem(
                                   widget.proList['productname'],
-                                  widget.proList['price'],
+                                  onSale != 0
+                                      ? ((1 - (onSale / 100)) *
+                                          widget.proList['price'])
+                                      : widget.proList['price'],
                                   1,
                                   widget.proList['instock'],
                                   widget.proList['proimages'],

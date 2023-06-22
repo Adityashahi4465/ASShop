@@ -2,6 +2,7 @@
 
 import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:as_shop/widgets/snackbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -17,25 +18,45 @@ class _SupplierLoginState extends State<SupplierLogin> {
   final GlobalKey<ScaffoldMessengerState> _scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordEController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool passwordVisible = true;
   bool processing = false;
 
-  void signUp() async {
+  void signIn() async {
     setState(() {
       processing = true;
     });
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordEController.text,
-        );
-        _formKey.currentState!.reset();
-        _emailController.text = '';
-        _passwordEController.text = '';
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
 
-        Navigator.pushReplacementNamed(context, '/supplier_home');
+        final userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        final userUid = userCredential.user!.uid;
+        final userDoc = await FirebaseFirestore.instance
+            .collection('suppliers')
+            .doc(userUid)
+            .get();
+
+        if (userDoc.exists) {
+          _formKey.currentState!.reset();
+          _emailController.text = '';
+          _passwordController.text = '';
+          Navigator.pushReplacementNamed(context, '/supplier_home');
+        } else {
+          setState(() {
+            processing = false;
+          });
+          MyMessageHandler.showSnackBar(
+            _scaffoldKey,
+            'No user found for the provided email!',
+          );
+        }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
           setState(() {
@@ -43,7 +64,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
           });
           MyMessageHandler.showSnackBar(
             _scaffoldKey,
-            'No user found for provided email!',
+            'No user found for the provided email!',
           );
         } else if (e.code == 'wrong-password') {
           setState(() {
@@ -60,7 +81,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
         });
         MyMessageHandler.showSnackBar(
           _scaffoldKey,
-          'Some error occurred when Logging In!',
+          'An error occurred while logging in!',
         );
       }
     } else {
@@ -69,14 +90,14 @@ class _SupplierLoginState extends State<SupplierLogin> {
       });
       MyMessageHandler.showSnackBar(
         _scaffoldKey,
-        'please fill all fields',
+        'Please fill in all fields',
       );
     }
   }
 
   @override
   void dispose() {
-    _passwordEController.dispose();
+    _passwordController.dispose();
     _emailController.dispose();
     super.dispose();
   }
@@ -129,7 +150,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: TextFormField(
-                          controller: _passwordEController,
+                          controller: _passwordController,
                           validator: (value) {
                             if (value!.isEmpty) {
                               return 'please enter your password';
@@ -181,7 +202,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
                           : AuthMainButton(
                               mainButtonLabel: 'Log In',
                               onPressed: () {
-                                signUp();
+                                signIn();
                               },
                             ),
                     ],

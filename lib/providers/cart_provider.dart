@@ -12,7 +12,9 @@ class Cart extends ChangeNotifier {
 
   double get totalPrice {
     var total = 0.0;
-    for (var item in _list) total += item.price * item.qty;
+    for (var item in _list) {
+      total += item.price * item.qty;
+    }
     return total;
   }
 

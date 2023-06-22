@@ -22,7 +22,7 @@ class AccessoriesCategory extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CategHeaderLabel(
-                    HeaderLabel: 'Accessories',
+                    headerLabel: 'Accessories',
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.64,

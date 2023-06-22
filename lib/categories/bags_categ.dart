@@ -21,7 +21,7 @@ class BagsCategory extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CategHeaderLabel(
-                    HeaderLabel: 'Bags',
+                    headerLabel: 'Bags',
                   ),
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.64,
