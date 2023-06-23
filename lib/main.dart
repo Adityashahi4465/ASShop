@@ -15,6 +15,7 @@ import 'package:as_shop/providers/wish_list_provider.dart';
 import 'package:as_shop/widgets/appbar_widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 
 import 'dashboard_components/supplier_balance.dart';
@@ -22,8 +23,15 @@ import 'dashboard_components/supplier_orders.dart';
 import 'dashboard_components/supplier_statics.dart';
 import 'firebase_options.dart';
 import 'main_screens/customer_home.dart';
+import 'constants/.env.keys.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = stripePublishableKey;
+  Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
+  Stripe.urlScheme = 'flutterstripe';
+  await Stripe.instance.applySettings();
+              
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
