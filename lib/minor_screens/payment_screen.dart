@@ -228,7 +228,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 bottomSheet: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: YellowButton(
-                    label: 'Confirm ${totalPrice.toStringAsFixed(2)} USD',
+                    label: 'Confirm ${totalPaid.toStringAsFixed(2)} USD',
                     width: 1,
                     onPressed: () async {
                       if (selectedValue == 1) {
@@ -321,16 +321,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                       });
                                     },
                                     width: 0.9,
-                                  )
+                                  ),
                                 ],
                               ),
                             ),
                           ),
                         );
                       } else if (selectedValue == 2) {
-                        await makePayment();
+                        double paymentInINR = totalPaid * 82;
+                        int paymentInPaise = (paymentInINR * 100).round();
+                        await makePayment(data, paymentInPaise.toString());
+                      } else {
+                        print("paypal");
                       }
-                      print("paypal");
                     },
                   ),
                 ),
@@ -347,58 +350,85 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   Map<String, dynamic>? paymentIntent;
 
-  Future<void> makePayment() async {
+  Future<void> makePayment(dynamic data, String amount) async {
     try {
-      paymentIntent = await createPaymentIntent('10', 'INR');
+      paymentIntent = await createPaymentIntent(amount, 'INR');
       //Payment Sheet
       await Stripe.instance
           .initPaymentSheet(
             paymentSheetParameters: SetupPaymentSheetParameters(
               paymentIntentClientSecret: paymentIntent!['client_secret'],
               applePay: const PaymentSheetApplePay(
-                merchantCountryCode: '+91',
+                merchantCountryCode: 'IND',
               ),
               googlePay: const PaymentSheetGooglePay(
                 testEnv: true,
                 currencyCode: "INR",
-                merchantCountryCode: "+91",
+                merchantCountryCode: "IND",
               ),
               style: ThemeMode.dark,
-              merchantDisplayName: 'Adnan',
+              merchantDisplayName: 'ASShop',
             ),
           )
           .then((value) async {});
 
       ///now finally display payment sheet
-      displayPaymentSheet();
+      displayPaymentSheet(data);
     } catch (e, s) {
       print('exception:$e$s');
     }
   }
 
-  displayPaymentSheet() async {
+  displayPaymentSheet(var data) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
-        showDialog(
-            context: context,
-            builder: (_) => const AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green,
-                          ),
-                          Text("Payment Successfull"),
-                        ],
-                      ),
-                    ],
-                  ),
-                ));
-
         paymentIntent = null;
+        for (var item in context.read<Cart>().getItems) {
+          CollectionReference orderRef =
+              FirebaseFirestore.instance.collection('orders');
+          orderId = const Uuid().v4();
+          await orderRef
+              .doc(orderId)
+              .set(
+                OrderDataClass(
+                        cid: data['cid'],
+                        custname: data['name'],
+                        email: data['email'],
+                        address: data['address'],
+                        phone: data['phone'],
+                        profileimage: data['profileimage'],
+                        sid: item.suppId,
+                        proid: item.documentId,
+                        orderid: orderId,
+                        ordername: item.name,
+                        orderimage: item.imagesUrl.first,
+                        orderqty: item.qty,
+                        orderprice: item.qty * item.price,
+                        deliverystatus: 'preparing',
+                        deliverydate: Timestamp.now(),
+                        orderdate: Timestamp.now(),
+                        paymentstatus: 'paid online',
+                        orderreview: false)
+                    .toMap(),
+              )
+              .whenComplete(() async {
+            await FirebaseFirestore.instance
+                .runTransaction((transaction) async {
+              DocumentReference documentReference = FirebaseFirestore.instance
+                  .collection('products')
+                  .doc(item.documentId);
+              DocumentSnapshot docSnap2 =
+                  await transaction.get(documentReference);
+              transaction.update(documentReference,
+                  {'instock': docSnap2['instock'] - item.qty});
+            });
+          });
+        }
+        await Future.delayed(const Duration(microseconds: 100))
+            .whenComplete(() {
+          context.read<Cart>().clearCart();
+          Navigator.popUntil(context, ModalRoute.withName('/customer_home'));
+        });
       }).onError((error, stackTrace) {
         print('Error is:--->$error $stackTrace');
       });
@@ -418,7 +448,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   createPaymentIntent(String amount, String currency) async {
     try {
       Map<String, dynamic> body = {
-        'amount': calculateAmount(amount),
+        'amount': amount,
         'currency': currency,
         'payment_method_types[]': 'card',
       };
@@ -438,10 +468,5 @@ class _PaymentScreenState extends State<PaymentScreen> {
       // ignore: avoid_print
       print('err charging user: ${err.toString()}');
     }
-  }
-
-  calculateAmount(String amount) {
-    final calculatedAmout = (int.parse(amount)) * 100;
-    return calculatedAmout.toString();
   }
 }

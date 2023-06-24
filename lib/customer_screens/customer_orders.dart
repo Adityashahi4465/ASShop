@@ -25,6 +25,7 @@ class CustomerOrders extends StatelessWidget {
           stream: FirebaseFirestore.instance
               .collection('orders')
               .where('cid', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+              .orderBy('orderdate', descending: true)
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
