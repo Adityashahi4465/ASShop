@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:badges/badges.dart' as badge;
 import 'dashboard_screen.dart';
-import 'stores.dart';
+import '../minor_screens/stores/stores.dart';
 import 'upload_product.dart';
 import 'package:flutter/material.dart';
 import 'category_screen.dart';

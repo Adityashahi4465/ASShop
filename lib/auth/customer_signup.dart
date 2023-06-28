@@ -28,7 +28,7 @@ class _CustomerRegisterState extends State<CustomerRegister> {
   bool passwordVisible = true;
   bool processing = false;
   XFile? _imageFile;
-  dynamic _pickedImageError;
+  // dynamic _pickedImageError;
   CollectionReference customers =
       FirebaseFirestore.instance.collection('customers');
   void _pickImageFromCamera() async {
@@ -42,9 +42,9 @@ class _CustomerRegisterState extends State<CustomerRegister> {
         _imageFile = pickedImage;
       });
     } catch (e) {
-      setState(() {
-        _pickedImageError = e;
-      });
+      // setState(() {
+      //   _pickedImageError = e;
+      // });
     }
   }
 
@@ -59,9 +59,9 @@ class _CustomerRegisterState extends State<CustomerRegister> {
         _imageFile = pickedImage;
       });
     } catch (e) {
-      setState(() {
-        _pickedImageError = e;
-      });
+      // setState(() {
+      //   _pickedImageError = e;
+      // });
     }
   }
 

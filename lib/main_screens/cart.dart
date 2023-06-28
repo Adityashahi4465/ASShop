@@ -1,6 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:as_shop/minor_screens/place_order_screen.dart';
+import 'package:as_shop/minor_screens/place_order/place_order_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart_model.dart';

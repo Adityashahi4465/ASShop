@@ -2,7 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../minor_screens/product_details.dart';
+import '../minor_screens/products/edit_products.dart';
+import '../minor_screens/products/product_details.dart';
 import '../providers/wish_list_provider.dart';
 import 'package:collection/collection.dart';
 // Product feed Card
@@ -130,7 +131,16 @@ class _ProductModelState extends State<ProductModel> {
                             ),
                             widget.products['sid'] == uid
                                 ? IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditProduct(
+                                            items: widget.products,
+                                          ),
+                                        ),
+                                      );
+                                    },
                                     icon: const Icon(
                                       Icons.edit,
                                     ),
@@ -143,7 +153,7 @@ class _ProductModelState extends State<ProductModel> {
                                               widget.products['proId'])
                                           : context
                                               .read<WishList>()
-                                            .addWishItem(
+                                              .addWishItem(
                                                 widget.products['productname'],
                                                 onSale != 0
                                                     ? ((1 - (onSale / 100)) *

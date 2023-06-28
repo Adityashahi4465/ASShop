@@ -3,7 +3,7 @@ import 'package:as_shop/dashboard_components/manage_products.dart';
 import 'package:as_shop/dashboard_components/supplier_balance.dart';
 import 'package:as_shop/dashboard_components/supplier_orders.dart';
 import 'package:as_shop/dashboard_components/supplier_statics.dart';
-import 'package:as_shop/minor_screens/visit_store.dart';
+import 'package:as_shop/minor_screens/stores/visit_store.dart';
 import 'package:as_shop/widgets/appbar_widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

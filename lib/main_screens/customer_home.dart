@@ -1,5 +1,5 @@
 import 'package:as_shop/main_screens/profile.dart';
-import 'package:as_shop/main_screens/stores.dart';
+import 'package:as_shop/minor_screens/stores/stores.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:badges/badges.dart' as badge;

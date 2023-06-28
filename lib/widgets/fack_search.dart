@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../minor_screens/search.dart';
+import '../minor_screens/search/search.dart';
 
 class FakeSearch extends StatelessWidget {
   const FakeSearch({
