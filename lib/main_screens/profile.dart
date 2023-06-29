@@ -1,7 +1,9 @@
+import 'package:as_shop/customer_screens/addresses_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../customer_screens/add_address.dart';
 import '../widgets/my_alert_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -20,6 +22,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       FirebaseFirestore.instance.collection('customers');
   CollectionReference anonymous =
       FirebaseFirestore.instance.collection('anonymous');
+
+  String userAddress(dynamic data) {
+    if (FirebaseAuth.instance.currentUser!.isAnonymous == true) {
+      return 'example: New Delhi - India';
+    } else if (FirebaseAuth.instance.currentUser!.isAnonymous == false &&
+        data['address'] == '') {
+      return 'Set Your Address';
+    }
+    return data['address'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     child: Column(
                                       children: [
+                                        //                              Email
                                         RepeatedListTile(
                                           title: 'Email Address',
                                           subTitle: data['email'] == ''
@@ -242,21 +255,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           onPressed: () {},
                                         ),
                                         const YellowDivider(),
+                                        //                              Phone
                                         RepeatedListTile(
-                                            title: 'Phone',
-                                            subTitle: data['phone'] == ''
-                                                ? 'example : +91123456789 '
-                                                : 'Phone No.',
-                                            icon: Icons.phone,
-                                            onPressed: () {}),
+                                          title: 'Phone',
+                                          subTitle: data['phone'] == ''
+                                              ? 'example : +91123456789 '
+                                              : 'Phone No.',
+                                          icon: Icons.phone,
+                                          onPressed: () {},
+                                        ),
+
+                                        //                              Address
                                         const YellowDivider(),
                                         RepeatedListTile(
                                           title: 'Address',
-                                          subTitle: data['address'] == ''
+                                          subTitle: userAddress(data),
+
+                                          /* data['address'] == ''
                                               ? 'example :Karol Bagh ,Delhi'
-                                              : data['address'],
+                                              : data['address'],*/
                                           icon: Icons.location_pin,
-                                          onPressed: () {},
+                                          onPressed: FirebaseAuth.instance
+                                                  .currentUser!.isAnonymous
+                                              ? null
+                                              : () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              const AddressBook()));
+                                                },
                                         ),
                                       ],
                                     ),
