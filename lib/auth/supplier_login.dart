@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:as_shop/widgets/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,6 +23,10 @@ class _SupplierLoginState extends State<SupplierLogin> {
   final TextEditingController _passwordController = TextEditingController();
   bool passwordVisible = true;
   bool processing = false;
+  bool showResendButton = false;
+  bool showResendTimer = false;
+  Timer? resendTimer;
+  int resendTimerSeconds = 0;
 
   void signIn() async {
     setState(() {
@@ -37,25 +43,42 @@ class _SupplierLoginState extends State<SupplierLogin> {
           password: password,
         );
 
-        final userUid = userCredential.user!.uid;
-        final userDoc = await FirebaseFirestore.instance
-            .collection('suppliers')
-            .doc(userUid)
-            .get();
+        final user = userCredential.user;
+        if (user != null) {
+          await user.reload();
+          if (user.emailVerified) {
+            final userUid = user.uid;
+            final userDoc = await FirebaseFirestore.instance
+                .collection('suppliers')
+                .doc(userUid)
+                .get();
 
-        if (userDoc.exists) {
-          _formKey.currentState!.reset();
-          _emailController.text = '';
-          _passwordController.text = '';
-          Navigator.pushReplacementNamed(context, '/supplier_home');
-        } else {
-          setState(() {
-            processing = false;
-          });
-          MyMessageHandler.showSnackBar(
-            _scaffoldKey,
-            'No user found for the provided email!',
-          );
+            if (userDoc.exists) {
+              _formKey.currentState!.reset();
+              _emailController.text = '';
+              _passwordController.text = '';
+              Navigator.pushReplacementNamed(context, '/supplier_home');
+            } else {
+              setState(() {
+                processing = false;
+              });
+              MyMessageHandler.showSnackBar(
+                _scaffoldKey,
+                'No user found for the provided email!',
+              );
+            }
+          } else {
+            setState(() {
+              processing = false;
+            });
+            MyMessageHandler.showSnackBar(
+              _scaffoldKey,
+              'Please check your email for verification',
+            );
+            setState(() {
+              showResendButton = true;
+            });
+          }
         }
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
@@ -95,10 +118,53 @@ class _SupplierLoginState extends State<SupplierLogin> {
     }
   }
 
+  void startResendTimer() {
+    const int initialSeconds = 30; // Initial timer duration in seconds
+    resendTimerSeconds = initialSeconds;
+
+    resendTimer?.cancel(); // Cancel any existing timer
+
+    resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        resendTimerSeconds--;
+
+        if (resendTimerSeconds <= 0) {
+          timer.cancel();
+          showResendTimer = false;
+          showResendButton = true;
+        }
+      });
+    });
+  }
+
+  Future<void> reSendEmailVerification() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.sendEmailVerification();
+        setState(() {
+          showResendTimer = true;
+          showResendButton = false;
+        });
+        startResendTimer();
+      }
+    } catch (e) {
+      setState(() {
+        showResendButton = true;
+      });
+      MyMessageHandler.showSnackBar(
+        _scaffoldKey,
+        'Resend Email Failed',
+      );
+    }
+  }
+
   @override
   void dispose() {
     _passwordController.dispose();
     _emailController.dispose();
+    resendTimer?.cancel();
+
     super.dispose();
   }
 
@@ -205,6 +271,31 @@ class _SupplierLoginState extends State<SupplierLogin> {
                                 signIn();
                               },
                             ),
+                      if (showResendButton)
+                        TextButton(
+                          onPressed: reSendEmailVerification,
+                          child: const Center(
+                            child: Text(
+                              'Resend Verification Email',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (showResendTimer)
+                        Center(
+                          child: Text(
+                            'Resend Email in ${resendTimerSeconds}s',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

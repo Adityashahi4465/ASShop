@@ -260,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           title: 'Phone',
                                           subTitle: data['phone'] == ''
                                               ? 'example : +91123456789 '
-                                              : 'Phone No.',
+                                              : data['phone'],
                                           icon: Icons.phone,
                                           onPressed: () {},
                                         ),

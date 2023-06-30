@@ -6,6 +6,7 @@ import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:as_shop/widgets/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -75,16 +76,27 @@ class _SupplierRegisterState extends State<SupplierRegister> {
     if (_formKey.currentState!.validate()) {
       if (_imageFile != null) {
         try {
+          // Create a new user with email and password
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _emailController.text.trim(),
             password: _passwordEController.text.trim(),
           );
+
+          try {
+            FirebaseAuth.instance.currentUser!.sendEmailVerification();
+          } catch (e) {
+            print(e);
+          }
+
+          // Save profile picture to firebase storage
           firebase_storage.Reference ref = firebase_storage
               .FirebaseStorage.instance
               .ref('supplier-images/${_emailController.text.trim()}.jpg');
           await ref.putFile(File(_imageFile!.path));
           _uid = FirebaseAuth.instance.currentUser!.uid;
           storeLogo = await ref.getDownloadURL();
+
+          // Save data into FirebaseFirestore
           await supplier.doc(_uid).set({
             'storename': _storeController.text.trim(),
             'email': _emailController.text.trim(),
@@ -94,6 +106,7 @@ class _SupplierRegisterState extends State<SupplierRegister> {
             'coverimage': ''
           });
 
+          // Reset all textFields
           _formKey.currentState!.reset();
           _storeController.text = '';
           _emailController.text = '';

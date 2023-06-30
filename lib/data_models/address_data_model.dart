@@ -26,7 +26,6 @@ class Address {
     required this.isDefault,
     required this.id,
   });
- 
 
   Address copyWith({
     String? country,
@@ -90,43 +89,15 @@ class Address {
 
   String toJson() => json.encode(toMap());
 
-  factory Address.fromJson(String source) => Address.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Address.fromJson(String source) =>
+      Address.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
     return 'Address(country: $country, state: $state, city: $city, firstName: $firstName, lastName: $lastName, phone: $phone, houseNumber: $houseNumber, street: $street, postalCode: $postalCode, isDefault: $isDefault, id: $id)';
   }
 
-  @override
-  bool operator ==(covariant Address other) {
-    if (identical(this, other)) return true;
-  
-    return 
-      other.country == country &&
-      other.state == state &&
-      other.city == city &&
-      other.firstName == firstName &&
-      other.lastName == lastName &&
-      other.phone == phone &&
-      other.houseNumber == houseNumber &&
-      other.street == street &&
-      other.postalCode == postalCode &&
-      other.isDefault == isDefault &&
-      other.id == id;
-  }
-
-  @override
-  int get hashCode {
-    return country.hashCode ^
-      state.hashCode ^
-      city.hashCode ^
-      firstName.hashCode ^
-      lastName.hashCode ^
-      phone.hashCode ^
-      houseNumber.hashCode ^
-      street.hashCode ^
-      postalCode.hashCode ^
-      isDefault.hashCode ^
-      id.hashCode;
+  String getFormattedAddress() {
+    return '$houseNumber, $state, $city - $postalCode, $country';
   }
 }

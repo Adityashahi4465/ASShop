@@ -1,4 +1,5 @@
 import 'package:as_shop/customer_screens/add_address.dart';
+import 'package:as_shop/widgets/progress_dialog.dart';
 import 'package:as_shop/widgets/yellow_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expandable/expandable.dart';
@@ -11,6 +12,39 @@ import '../widgets/appbar_widgets.dart';
 
 class AddressBook extends StatelessWidget {
   const AddressBook({Key? key}) : super(key: key);
+
+  Future<void> makeAllDefault(Address address) async {
+    await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('address')
+        .where('id', isNotEqualTo: address.id)
+        .get()
+        .then((snapshot) {
+      for (var doc in snapshot.docs) {
+        doc.reference.update({'isDefault': false});
+      }
+    });
+  }
+
+  Future<void> updateDefaultAddress(Address address) async {
+    await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('address')
+        .doc(address.id)
+        .update({'isDefault': true});
+  }
+
+  Future<void> updateProfileAddress(Address address) async {
+    await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'address': address.getFormattedAddress(),
+      'phone': address.phone,
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,34 +127,25 @@ class AddressBook extends StatelessWidget {
                   return AddressCard(
                     address: address,
                     onMakeDefault: () async {
+                      showProgress(context);
                       try {
-                        // Mark the selected address as default in Firestore
-                        await FirebaseFirestore.instance
-                            .collection('customers')
-                            .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection('address')
-                            .doc(address.id)
-                            .update({'isDefault': true});
-
                         // Clear the 'isDefault' field for all other addresses
-                        await FirebaseFirestore.instance
-                            .collection('customers')
-                            .doc(FirebaseAuth.instance.currentUser!.uid)
-                            .collection('address')
-                            .where('id', isNotEqualTo: address.id)
-                            .get()
-                            .then((snapshot) {
-                          for (var doc in snapshot.docs) {
-                            doc.reference.update({'isDefault': false});
-                          }
+                        makeAllDefault(address);
+                        // Mark the selected address as default in Firestore
+                        await updateDefaultAddress(address)
+                            .whenComplete(() async {
+                          // Update the address field in the customer collection's document
+                          await updateProfileAddress(address)
+                              .whenComplete(() => Navigator.pop(context))
+                              .whenComplete(() =>
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Address set as default'),
+                                    ),
+                                  ));
                         });
 
                         // Show success message or perform any other actions
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Address set as default'),
-                          ),
-                        );
                       } catch (error) {
                         // Handle errors
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -151,63 +176,86 @@ class AddressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ExpandablePanel(
-        header: ListTile(
-          title: Text.rich(
-            TextSpan(
-              text: '${address.firstName} ${address.lastName}',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    return Dismissible(
+      key: UniqueKey(),
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      onDismissed: (direction) async {
+        await FirebaseFirestore.instance
+            .collection('customers')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('address')
+            .doc(address.id)
+            .delete();
+      },
+      child: Card(
+        color: address.isDefault != true
+            ? Colors.white
+            : Color.fromARGB(255, 218, 218, 218),
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: ExpandablePanel(
+          header: ListTile(
+            title: Text.rich(
+              TextSpan(
+                text: '${address.firstName} ${address.lastName}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                children: <InlineSpan>[
+                  TextSpan(
+                    text: address.isDefault ? '  (default)' : '',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey),
+                  )
+                ],
               ),
-              children: <InlineSpan>[
-                TextSpan(
-                  text: address.isDefault ? '  (default)' : '',
-                  style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.grey),
-                )
+            ),
+            subtitle: Text(
+              '${address.houseNumber}, ${address.city}, ${address.state}',
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.blueGrey,
+              ),
+            ),
+          ),
+          collapsed: Container(),
+          expanded: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildField('Name', '${address.firstName} ${address.lastName}'),
+                _buildField('Phone', address.phone),
+                _buildField('House Number', address.houseNumber),
+                _buildField('Street', address.street),
+                _buildField('City', address.city),
+                _buildField('State', address.state),
+                _buildField('Country', address.country),
+                _buildField('Postal Code', address.postalCode),
+                address.isDefault
+                    ? const SizedBox()
+                    : ElevatedButton(
+                        onPressed: () {
+                          onMakeDefault();
+                        },
+                        child: const Text(
+                          'Make Default',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
               ],
             ),
-          ),
-          subtitle: Text(
-            '${address.houseNumber}, ${address.city}, ${address.state}',
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.blueGrey,
-            ),
-          ),
-        ),
-        collapsed: Container(),
-        expanded: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildField('Name', '${address.firstName} ${address.lastName}'),
-              _buildField('Phone', address.phone),
-              _buildField('House Number', address.houseNumber),
-              _buildField('Street', address.street),
-              _buildField('City', address.city),
-              _buildField('State', address.state),
-              _buildField('Country', address.country),
-              _buildField('Postal Code', address.postalCode),
-              address.isDefault
-                  ? const SizedBox()
-                  : ElevatedButton(
-                      onPressed: () {
-                        onMakeDefault();
-                      },
-                      child: const Text(
-                        'Make Default',
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-            ],
           ),
         ),
       ),

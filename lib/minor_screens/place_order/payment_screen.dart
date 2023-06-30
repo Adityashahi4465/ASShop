@@ -17,9 +17,17 @@ import 'package:as_shop/widgets/yellow_button.dart';
 import '../../constants/.env.keys.dart';
 import '../../main_screens/profile.dart';
 import '../../providers/cart_provider.dart';
+import '../../widgets/progress_dialog.dart';
 
 class PaymentScreen extends StatefulWidget {
-  const PaymentScreen({super.key});
+  final String name;
+  final String phone;
+  final String address;
+  const PaymentScreen(
+      {super.key,
+      required this.name,
+      required this.phone,
+      required this.address});
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -31,10 +39,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   CollectionReference customers =
       FirebaseFirestore.instance.collection('customers');
 
-  void showProgress() {
-    ProgressDialog progress = ProgressDialog(context: context);
-    progress.show(max: 100, msg: 'please wait..', progressBgColor: Colors.red);
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +257,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                     label:
                                         'Confirm ${totalPaid.toStringAsFixed(2)} \$',
                                     onPressed: () async {
-                                      showProgress();
+                                       // Progress Dialogue
+                                      showProgress(context);
                                       for (var item
                                           in context.read<Cart>().getItems) {
                                         CollectionReference orderRef =
@@ -264,10 +270,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                             .set(
                                               OrderDataClass(
                                                       cid: data['cid'],
-                                                      custname: data['name'],
+                                                      custname: widget.name,
                                                       email: data['email'],
-                                                      address: data['address'],
-                                                      phone: data['phone'],
+                                                      address: widget.address,
+                                                      phone: widget.phone,
                                                       profileimage:
                                                           data['profileimage'],
                                                       sid: item.suppId,
