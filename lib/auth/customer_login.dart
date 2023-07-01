@@ -1,5 +1,8 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
+import 'package:as_shop/auth/forgot_password.dart';
 import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:as_shop/widgets/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,47 +23,64 @@ class _CustomerLoginState extends State<CustomerLogin> {
   final TextEditingController _passwordEController = TextEditingController();
   bool passwordVisible = true;
   bool processing = false;
+  bool showResendButton = false;
+  bool showResendTimer = false;
+  Timer? resendTimer;
+  int resendTimerSeconds = 0;
+  int initialSeconds = 0; // Initial timer duration in seconds
 
-  void signUp() async {
+  void signIn() async {
     setState(() {
       processing = true;
     });
     if (_formKey.currentState!.validate()) {
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordEController.text,
-        );
-        _formKey.currentState!.reset();
-        _emailController.text = '';
-        _passwordEController.text = '';
+        final email = _emailController.text.trim();
+        final password = _passwordEController.text;
 
-        Navigator.pushReplacementNamed(context, '/customer_home');
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          setState(() {
-            processing = false;
-          });
-          MyMessageHandler.showSnackBar(
-            _scaffoldKey,
-            'No user found for provided email!',
-          );
-        } else if (e.code == 'wrong-password') {
-          setState(() {
-            processing = false;
-          });
-          MyMessageHandler.showSnackBar(
-            _scaffoldKey,
-            'Wrong password provided for that user!',
-          );
+        final userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        final user = userCredential.user;
+        if (user != null) {
+          await user.reload();
+          if (user.emailVerified) {
+            _formKey.currentState!.reset();
+            _emailController.text = '';
+            _passwordEController.text = '';
+            Navigator.pushReplacementNamed(context, '/customer_home');
+          } else {
+            setState(() {
+              processing = false;
+            });
+            MyMessageHandler.showSnackBar(
+              _scaffoldKey,
+              'Please check your email for verification',
+            );
+            setState(() {
+              showResendButton = true;
+            });
+          }
         }
+      } on FirebaseAuthException catch (e) {
+        setState(() {
+          processing = false;
+        });
+
+        MyMessageHandler.showSnackBar(
+          _scaffoldKey,
+          e.message.toString(),
+        );
       } catch (e) {
         setState(() {
           processing = false;
         });
         MyMessageHandler.showSnackBar(
           _scaffoldKey,
-          'Some error occurred when Logging In!',
+          'An error occurred while logging in!',
         );
       }
     } else {
@@ -69,15 +89,56 @@ class _CustomerLoginState extends State<CustomerLogin> {
       });
       MyMessageHandler.showSnackBar(
         _scaffoldKey,
-        'please fill all fields',
+        'Please fill in all fields',
+      );
+    }
+  }
+
+  void startResendTimer() {
+    resendTimerSeconds = initialSeconds + 30;
+
+    resendTimer?.cancel(); // Cancel any existing timer
+
+    resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        resendTimerSeconds--;
+
+        if (resendTimerSeconds <= 0) {
+          timer.cancel();
+          showResendTimer = false;
+          showResendButton = true;
+        }
+      });
+    });
+  }
+
+  Future<void> reSendEmailVerification() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.sendEmailVerification();
+        setState(() {
+          showResendTimer = true;
+          showResendButton = false;
+        });
+        startResendTimer();
+      }
+    } catch (e) {
+      setState(() {
+        showResendButton = true;
+      });
+      MyMessageHandler.showSnackBar(
+        _scaffoldKey,
+        'Failed to send verification email',
       );
     }
   }
 
   @override
   void dispose() {
-    _passwordEController.dispose();
     _emailController.dispose();
+    _passwordEController.dispose();
+    resendTimer?.cancel();
     super.dispose();
   }
 
@@ -157,7 +218,12 @@ class _CustomerLoginState extends State<CustomerLogin> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ForgotPasswordScreen(),
+                          ),
+                        ),
                         child: const Text(
                           'Forget Password',
                           style: TextStyle(
@@ -181,9 +247,34 @@ class _CustomerLoginState extends State<CustomerLogin> {
                           : AuthMainButton(
                               mainButtonLabel: 'Log In',
                               onPressed: () {
-                                signUp();
+                                signIn();
                               },
                             ),
+                      if (showResendButton)
+                        TextButton(
+                          onPressed: reSendEmailVerification,
+                          child: const Center(
+                            child: Text(
+                              'Resend Verification Email',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.purple,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (showResendTimer)
+                        Center(
+                          child: Text(
+                            'Resend Email in ${resendTimerSeconds}s',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),

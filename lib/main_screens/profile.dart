@@ -1,4 +1,5 @@
 import 'package:as_shop/customer_screens/addresses_list.dart';
+import 'package:as_shop/repository/auth_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -329,19 +330,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               tabNo: () =>
                                                   Navigator.pop(context),
                                               tabYes: () async {
-                                                await FirebaseAuth.instance
-                                                    .signOut();
-
-                                                await Future.delayed(
-                                                        const Duration(
-                                                            microseconds: 100))
-                                                    .whenComplete(() {
-                                                  Navigator.pop(context);
-                                                  Navigator
-                                                      .pushReplacementNamed(
-                                                          context,
-                                                          '/welcome_screen');
-                                                });
+                                                await AuthRepository.logOut(
+                                                    context);
                                               },
                                             );
                                           },

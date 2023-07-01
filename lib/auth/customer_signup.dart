@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
+import '../data_models/cutomer_data_model.dart';
+import '../repository/auth_repository.dart';
+
 class CustomerRegister extends StatefulWidget {
   const CustomerRegister({Key? key}) : super(key: key);
 
@@ -72,24 +75,32 @@ class _CustomerRegisterState extends State<CustomerRegister> {
     if (_formKey.currentState!.validate()) {
       if (_imageFile != null) {
         try {
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordEController.text.trim(),
+          await AuthRepository.signUpWithEmailAndPassword(
+            _emailController.text.trim(),
+            _passwordEController.text.trim(),
           );
+          AuthRepository.sendEmailVerification();
+
           firebase_storage.Reference ref = firebase_storage
               .FirebaseStorage.instance
               .ref('customer-images/${_emailController.text.trim()}.jpg');
           await ref.putFile(File(_imageFile!.path));
-          _uid = FirebaseAuth.instance.currentUser!.uid;
+
+          _uid = AuthRepository.uid;
           profileImage = await ref.getDownloadURL();
-          await customers.doc(_uid).set({
-            'name': _nameController.text.trim(),
-            'email': _emailController.text.trim(),
-            'profileimage': profileImage,
-            'phone': '',
-            'address': '',
-            'cid': _uid,
-          });
+          AuthRepository.updateUserName(_nameController.text.trim());
+          AuthRepository.updateUserProfilePhoto(profileImage);
+
+          await customers.doc(_uid).set(
+                Customer(
+                  name: _nameController.text.trim(),
+                  email: _emailController.text.trim(),
+                  profileimage: profileImage,
+                  phone: '',
+                  address: '',
+                  cid: _uid,
+                ).toMap(),
+              );
 
           _formKey.currentState!.reset();
           _nameController.text = '';
@@ -101,23 +112,13 @@ class _CustomerRegisterState extends State<CustomerRegister> {
           await Future.delayed(const Duration(microseconds: 100)).whenComplete(
               () => Navigator.pushReplacementNamed(context, '/customer_login'));
         } on FirebaseAuthException catch (e) {
-          if (e.code == 'weak-password') {
-            setState(() {
-              processing = false;
-            });
-            MyMessageHandler.showSnackBar(
-              _scaffoldKey,
-              'The password provided is too weak!',
-            );
-          } else if (e.code == 'email-already-in-use') {
-            setState(() {
-              processing = false;
-            });
-            MyMessageHandler.showSnackBar(
-              _scaffoldKey,
-              'The account already exists for that email!',
-            );
-          } else {}
+          setState(() {
+            processing = false;
+          });
+          MyMessageHandler.showSnackBar(
+            _scaffoldKey,
+            e.message.toString(),
+          );
         } catch (e) {
           setState(() {
             processing = false;

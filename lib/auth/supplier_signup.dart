@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:as_shop/repository/auth_repository.dart';
 import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:as_shop/widgets/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +11,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
+import '../data_models/supplier_data_model.dart';
 
 class SupplierRegister extends StatefulWidget {
   const SupplierRegister({Key? key}) : super(key: key);
@@ -77,34 +80,34 @@ class _SupplierRegisterState extends State<SupplierRegister> {
       if (_imageFile != null) {
         try {
           // Create a new user with email and password
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordEController.text.trim(),
+          await AuthRepository.signUpWithEmailAndPassword(
+            _emailController.text.trim(),
+            _passwordEController.text.trim(),
           );
 
-          try {
-            FirebaseAuth.instance.currentUser!.sendEmailVerification();
-          } catch (e) {
-            print(e);
-          }
+          AuthRepository.sendEmailVerification();
 
           // Save profile picture to firebase storage
           firebase_storage.Reference ref = firebase_storage
               .FirebaseStorage.instance
               .ref('supplier-images/${_emailController.text.trim()}.jpg');
           await ref.putFile(File(_imageFile!.path));
-          _uid = FirebaseAuth.instance.currentUser!.uid;
-          storeLogo = await ref.getDownloadURL();
 
+          storeLogo = await ref.getDownloadURL();
+          _uid = AuthRepository.uid;
+          AuthRepository.updateUserName(_storeController.text.trim());
+          AuthRepository.updateUserProfilePhoto(storeLogo);
           // Save data into FirebaseFirestore
-          await supplier.doc(_uid).set({
-            'storename': _storeController.text.trim(),
-            'email': _emailController.text.trim(),
-            'storelogo': storeLogo,
-            'phone': '',
-            'sid': _uid,
-            'coverimage': ''
-          });
+          await supplier.doc(_uid).set(
+                Supplier(
+                  storename: _storeController.text.trim(),
+                  email: _emailController.text.trim(),
+                  storelogo: storeLogo,
+                  phone: '',
+                  sid: _uid,
+                  coverimage: '',
+                ).toMap(),
+              );
 
           // Reset all textFields
           _formKey.currentState!.reset();
@@ -114,25 +117,17 @@ class _SupplierRegisterState extends State<SupplierRegister> {
           setState(() {
             _imageFile = null;
           });
-          Navigator.pushReplacementNamed(context, '/supplier_login');
+          Future.delayed(const Duration(milliseconds: 100)).whenComplete(
+            () => Navigator.pushReplacementNamed(context, '/supplier_login'),
+          );
         } on FirebaseAuthException catch (e) {
-          if (e.code == 'weak-password') {
-            setState(() {
-              processing = false;
-            });
-            MyMessageHandler.showSnackBar(
-              _scaffoldKey,
-              'The password provided is too weak!',
-            );
-          } else if (e.code == 'email-already-in-use') {
-            setState(() {
-              processing = false;
-            });
-            MyMessageHandler.showSnackBar(
-              _scaffoldKey,
-              'The account already exists for that email!',
-            );
-          } else {}
+          setState(() {
+            processing = false;
+          });
+          MyMessageHandler.showSnackBar(
+            _scaffoldKey,
+            e.message.toString(),
+          );
         } catch (e) {
           setState(() {
             processing = false;
@@ -327,7 +322,7 @@ class _SupplierRegisterState extends State<SupplierRegister> {
                               ),
                             )
                           : AuthMainButton(
-                              mainButtonLabel: 'Sing Up',
+                              mainButtonLabel: 'Sign Up',
                               onPressed: () {
                                 signUp();
                               },

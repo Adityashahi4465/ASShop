@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:as_shop/repository/auth_repository.dart';
 import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:as_shop/widgets/snackbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,16 +38,15 @@ class _SupplierLoginState extends State<SupplierLogin> {
         final email = _emailController.text.trim();
         final password = _passwordController.text;
 
-        final userCredential =
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: email,
-          password: password,
+        final userCredential = await AuthRepository.signInWithEmailAndPassword(
+          email,
+          password,
         );
 
         final user = userCredential.user;
         if (user != null) {
-          await user.reload();
-          if (user.emailVerified) {
+          await AuthRepository.reloadUserData();
+          if (await AuthRepository.checkEmailVerification()) {
             final userUid = user.uid;
             final userDoc = await FirebaseFirestore.instance
                 .collection('suppliers')
@@ -64,7 +64,7 @@ class _SupplierLoginState extends State<SupplierLogin> {
               });
               MyMessageHandler.showSnackBar(
                 _scaffoldKey,
-                'No user found for the provided email!',
+                'You are not an supplier!',
               );
             }
           } else {
@@ -81,23 +81,14 @@ class _SupplierLoginState extends State<SupplierLogin> {
           }
         }
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          setState(() {
-            processing = false;
-          });
-          MyMessageHandler.showSnackBar(
-            _scaffoldKey,
-            'No user found for the provided email!',
-          );
-        } else if (e.code == 'wrong-password') {
-          setState(() {
-            processing = false;
-          });
-          MyMessageHandler.showSnackBar(
-            _scaffoldKey,
-            'Wrong password provided for that user!',
-          );
-        }
+        setState(() {
+          processing = false;
+        });
+
+        MyMessageHandler.showSnackBar(
+          _scaffoldKey,
+          e.message.toString(),
+        );
       } catch (e) {
         setState(() {
           processing = false;
