@@ -85,6 +85,20 @@ class AuthRepository {
     }
   }
 
+  static Future<bool> checkOldPassword(email, password) async {
+    User currentUser = FirebaseAuth.instance.currentUser!;
+    try {
+      AuthCredential authCredential =
+          EmailAuthProvider.credential(email: email, password: password);
+      var credentialResult =
+          await currentUser.reauthenticateWithCredential(authCredential);
+      return credentialResult.user != null;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   static get uid {
     User user = FirebaseAuth.instance.currentUser!;
     return user.uid;

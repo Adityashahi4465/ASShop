@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../auth/change_password.dart';
 import '../customer_screens/add_address.dart';
 import '../widgets/my_alert_dialog.dart';
 
@@ -314,7 +315,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           title: 'Change Password',
                                           subTitle: '',
                                           icon: Icons.lock,
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ChangePasswordScreen()));
+                                          },
                                         ),
                                         const YellowDivider(),
                                         RepeatedListTile(

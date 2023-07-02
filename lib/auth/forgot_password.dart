@@ -3,7 +3,6 @@ import 'package:as_shop/widgets/auth_widgets.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 const kPrimaryColor = Color(0xff573353);
 const kSecondaryColor = Color(0xffFC9D45);
