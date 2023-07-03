@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthRepository {
   static Future<void> signUpWithEmailAndPassword(email, password) async {
@@ -36,13 +37,22 @@ class AuthRepository {
 
   static Future<void> logOut(BuildContext context) async {
     final auth = FirebaseAuth.instance;
+    GoogleSignIn googleSignIn = GoogleSignIn();
+
     try {
-      await auth.signOut().whenComplete(
-        () {
+      if (googleSignIn.currentUser != null) {
+        await googleSignIn.disconnect();
+        await FirebaseAuth.instance.signOut();
+        Future.delayed(const Duration(microseconds: 1000)).whenComplete(() {
           Navigator.pop(context);
           Navigator.pushReplacementNamed(context, '/welcome_screen');
-        },
-      );
+        });
+      } else {
+        await FirebaseAuth.instance.signOut().whenComplete(() {
+          Navigator.pop(context);
+          Navigator.pushReplacementNamed(context, '/welcome_screen');
+        });
+      }
     } catch (e) {
       print('Error Occurred during sign Out $e');
     }
@@ -96,6 +106,15 @@ class AuthRepository {
     } catch (e) {
       print(e);
       return false;
+    }
+  }
+
+  static Future<void> updatePassword(newPassword) async {
+    User currentUser = FirebaseAuth.instance.currentUser!;
+    try {
+      await currentUser.updatePassword(newPassword);
+    } catch (e) {
+      print(e);
     }
   }
 

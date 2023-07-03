@@ -104,6 +104,7 @@ class AuthHeaderLabel extends StatelessWidget {
   }
 }
 
+
 var textFormDecoration = InputDecoration(
   labelText: 'Full Name',
   hintText: 'Enter your full name',
