@@ -51,15 +51,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-// Render the UI based on the documentId value
     if (documentId == null) {
       // Render a loading indicator or handle the case when the user is not authenticated
-      return Center(
+      return const Center(
         child: CircularProgressIndicator(),
       );
     } else {
       // Render the profile screen based on the documentId value
-
       return FutureBuilder<DocumentSnapshot>(
         future: FirebaseAuth.instance.currentUser!.isAnonymous
             ? anonymous.doc(documentId).get()
@@ -349,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          ChangePasswordScreen()));
+                                                          const ChangePasswordScreen()));
                                             },
                                           ),
                                           const YellowDivider(),

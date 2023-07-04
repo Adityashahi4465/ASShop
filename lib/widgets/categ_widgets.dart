@@ -73,6 +73,7 @@ class SubCategModel extends StatelessWidget {
             builder: (context) => SubCategProducts(
               maincatagName: mainCategName,
               subcatagName: subCategLabel,
+              fromOnBoarding: false,
             ),
           ),
         );

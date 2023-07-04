@@ -10,9 +10,12 @@ import '../models/product_model.dart';
 class SubCategProducts extends StatelessWidget {
   final String maincatagName;
   final String subcatagName;
-
+  final bool fromOnBoarding;
   const SubCategProducts(
-      {required this.subcatagName, required this.maincatagName, Key? key})
+      {required this.subcatagName,
+      required this.maincatagName,
+      Key? key,
+      required this.fromOnBoarding})
       : super(key: key);
 
   @override
@@ -27,7 +30,15 @@ class SubCategProducts extends StatelessWidget {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: const AppBarBackButton(),
+        leading: fromOnBoarding
+            ? IconButton(
+                onPressed: () =>
+                    Navigator.pushReplacementNamed(context, '/customer_home'),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colors.black,
+                ))
+            : const AppBarBackButton(),
         title: AppBarTitle(
           title: subcatagName,
         ),

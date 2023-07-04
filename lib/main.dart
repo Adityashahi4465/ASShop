@@ -8,6 +8,7 @@ import 'package:as_shop/dashboard_components/edit_business.dart';
 import 'package:as_shop/dashboard_components/manage_products.dart';
 import 'package:as_shop/dashboard_components/my_store.dart';
 import 'package:as_shop/main_screens/cart.dart';
+import 'package:as_shop/main_screens/onboarding/onboarding_screen.dart';
 import 'package:as_shop/main_screens/supplier_home.dart';
 import 'package:as_shop/main_screens/welcome_screen.dart';
 import 'package:as_shop/providers/cart_provider.dart';
@@ -31,7 +32,7 @@ Future<void> main() async {
   Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
   Stripe.urlScheme = 'flutterstripe';
   await Stripe.instance.applySettings();
-              
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
@@ -54,9 +55,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ASShop',
-      initialRoute: '/welcome_screen',
+      initialRoute: '/onboarding_screen',
       routes: {
         '/welcome_screen': (context) => const WelcomeScreen(),
+        '/onboarding_screen': (context) => const OnBoardingScreen(),
         '/customer_signup': (context) => const CustomerRegister(),
         '/customer_login': (context) => const CustomerLogin(),
         '/customer_home': (context) => const CustomerHomeScreen(),
@@ -69,9 +71,7 @@ class MyApp extends StatelessWidget {
         'supplier_balance': (context) => const BalanceScreen(),
         '/supplier_orders': (context) => const SupplierOrders(),
         '/supplier_statics': (context) => const StaticsScreen(),
-        '/cart_screen': (context) => const CartScreen(
-              back: AppBarBackButton(),
-            ),
+        '/cart_screen': (context) => const CartScreen(back: AppBarBackButton()),
         '/wishlist_screen': (context) => const WishListScreen(),
         '/customer_orders': (context) => const CustomerOrders(),
       },
