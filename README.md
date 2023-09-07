@@ -1,4 +1,4 @@
-# ASShop - Ongoing
+# ASShop - Working
 
 An E-commerce website that allows buying/Selling products to strengthen small vendors to enhance their business.
 
